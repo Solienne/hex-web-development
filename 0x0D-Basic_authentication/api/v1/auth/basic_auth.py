@@ -61,6 +61,69 @@ class BasicAuth(Auth):
         """
         if decoded_base64_authorization_header is None:
             return(None, None)
+        if type(decoded_base64_authorizatio#!/usr/bin/env python3
+"""
+class BasicAuth for basic authentication
+"""
+from api.v1.auth.auth import Auth
+from typing import TypeVar
+from models.user import User
+from models.base import DATA
+import binascii
+import base64
+
+
+class BasicAuth(Auth):
+    """
+    A class that inherits from Auth
+    """
+    def __init__(self) -> None:
+        """
+        Initialize the class
+        """
+        pass
+
+    def extract_base64_authorization_header(
+            self,
+            authorization_header: str) -> str:
+        """
+        Returns the Base64 part of the Authorization
+        header for a Basic Authentication
+        """
+        if authorization_header is None:
+            return None
+        elif type(authorization_header) is not str:
+            return None
+        elif authorization_header[:6] != "Basic ":
+            return None
+        else:
+            return authorization_header.split(" ")[1]
+
+    def decode_base64_authorization_header(
+            self,
+            base64_authorization_header: str) -> str:
+        """
+        returns the decoded value of a Base64 string
+        """
+        if base64_authorization_header is None:
+            return None
+        elif type(base64_authorization_header) is not str:
+            return None
+        try:
+            base64_bytes = base64.b64decode(base64_authorization_header)
+            base64_text = base64_bytes.decode('ascii')
+            return base64_text
+        except(binascii.Error, UnicodeDecodeError):
+            return None
+
+    def extract_user_credentials(
+            self,
+            decoded_base64_authorization_header: str) -> (str, str):
+        """
+        returns the user email and password from the Base64 decoded value.
+        """
+        if decoded_base64_authorization_header is None:
+            return(None, None)
         if type(decoded_base64_authorization_header) is not str:
             return(None, None)
         if ':' not in decoded_base64_authorization_header:
@@ -100,4 +163,4 @@ class BasicAuth(Auth):
         credentials = self.extract_user_credentials(base64_decoded)
         user_obj = self.user_object_from_credentials(
             credentials[0], credentials[1])
-        return user_obj
+        return  user_obj
